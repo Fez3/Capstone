@@ -2,7 +2,7 @@
 library(dplyr)
 library(ggplot2)
 library(tidyr)
-data=read.csv("accepted_2007_to_2018Q4.csv")
+data=read.csv("loans_clean_complete.csv")
 
 # Remove all incomplete loans, and other status (40 "default", etc) 
 data=data[which(data$loan_status %in% c("Fully Paid","Charged Off")),] #2260701 obs-> 1345310 obs
@@ -61,3 +61,6 @@ PDtable["expected_profit"]=-(PDtable$PD*PDtable$loss/100+(100-PDtable$PD)*PDtabl
 # Observe the rate of return for later years
 PDtable %>% group_by(., grade)%>%summarise(., "ROIC"=mean(expected_profit)) %>% ggplot(.,aes(x=grade, y=ROIC))+geom_bar(stat="identity")
 PDtable %>% group_by(., Year)%>%summarise(., "ROIC"=mean(expected_profit)) %>% ggplot(.,aes(x=Year, y=ROIC))+geom_bar(stat="identity")
+
+
+data=read.csv("all.data.impute.csv")
