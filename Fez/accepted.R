@@ -1,16 +1,16 @@
-
+library(data.table)
 library(dplyr)
 library(ggplot2)
 library(tidyr)
 data=read.csv("accepted_2007_to_2018Q4.csv")
 
 # Remove all incomplete loans, and other status (40 "default", etc) 
-#data=data[which(data$loan_status %in% c("Fully Paid","Charged Off")),] #2260701 obs-> 1345310 obs
+data=data[which(data$loan_status %in% c("Fully Paid","Charged Off")),] #2260701 obs-> 1345310 obs
 
 data <- data %>% mutate(., "loss"=0)
 data[data$loan_status=="Charged Off","loss"]<-data[data$loan_status=="Charged Off","loan_amnt"]-data[data$loan_status=="Charged Off","total_pymnt"]+data[data$loan_status=="Charged Off","collection_recovery_fee"]
 data<- data %>% mutate(., "profit"=0)
-data[data$loan_status=="Fully Paid","profit"]<-data[data$loan_status=="Fully Paid","total_pymnt"]-data[data$loan_status=="Fully Paid","loan_amnt"]+data[data$loan_status=="Fully Paid","total_rec_late_fee"]
+data[data$loan_status=="Fully Paid","profit"]<-0.99*data[data$loan_status=="Fully Paid","total_pymnt"]-data[data$loan_status=="Fully Paid","loan_amnt"]+data[data$loan_status=="Fully Paid","total_rec_late_fee"]
 data[,"profit_frac"]=data$profit/data$loan_amnt
 exp_profit<-data[data$loan_status=="Fully Paid",] %>% group_by(., sub_grade, term) %>% summarise(., "exp_profit"=mean(profit_frac))
 dataAnalysis<-merge(x=data, y=exp_profit, all.x = TRUE)
